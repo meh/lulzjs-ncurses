@@ -186,6 +186,13 @@ Screen_finalize (JSContext* cx, JSObject* object)
 }
 
 JSBool
+Screen_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    doupdate();
+    return JS_TRUE;
+}
+
+JSBool
 Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     jsint val;

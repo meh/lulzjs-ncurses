@@ -194,7 +194,6 @@ JSBool
 Panel_static_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     update_panels();
-    doupdate();
     return JS_TRUE;
 }
 

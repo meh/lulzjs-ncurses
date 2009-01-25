@@ -24,6 +24,7 @@ Object.extend(ncurses.Panel.prototype, {
     resize: function (obj) {
         this.__window.resize(obj);
         ncurses.Panel.update();
+        ncurses.Screen.update();
     },
 
     printChar: function (ch, options) {
