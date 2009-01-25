@@ -197,9 +197,9 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
     }
 
     WindowInformation* data = JS_GetPrivate(cx, object);
-
     if (data->border) {
         wborder(data->win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+        wrefresh(data->win);
         wresize(data->win, height, width);
         box(data->win, 0, 0);
     }
