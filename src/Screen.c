@@ -36,12 +36,14 @@ Screen_initialize (JSContext* cx)
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
-    JSObject* object = JS_InitClass(
-        cx, parent, NULL, &Screen_class,
-        Screen_constructor, 1, NULL, Screen_methods, NULL, NULL
+    JSObject* object = JS_DefineObject(
+        cx, parent,
+        Screen_class.name, &Screen_class, NULL,
+        JSPROP_PERMANENT|JSPROP_READONLY|JSPROP_ENUMERATE
     );
-
     if (object) {
+        JS_DefineFunctions(cx, object, Screen_methods);
+
         // Default properties
         jsval property;
 
@@ -52,7 +54,7 @@ Screen_initialize (JSContext* cx)
 }
 
 JSBool
-Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     JSObject* options;
 
@@ -151,6 +153,8 @@ Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     // Cursor state
     JS_GetProperty(cx, options, "cursor", &option);
     curs_set(JS_ParseInt(cx, option, 0));
+
+    *rval = OBJECT_TO_JSVAL(object);
 
     return JS_TRUE;
 }

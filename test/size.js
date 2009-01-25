@@ -1,7 +1,7 @@
 #! /usr/bin/env ljs
 require("ncurses");
 
-var screen = new ncurses.Screen({buffering: ncurses.Buffering.Raw});
+var screen = ncurses.Screen.init({buffering: ncurses.Buffering.Raw});
 
 (screen.onResize = function () {
     screen.printString("Width", {x: 0, y: 0, fg: ncurses.Colors.Red, at: ncurses.Attributes.Underline});

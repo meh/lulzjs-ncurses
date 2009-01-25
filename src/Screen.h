@@ -39,12 +39,14 @@ static JSClass Screen_class = {
 
 #include "Screen_private.h"
 
+extern JSBool Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 void __Screen_updateSize (JSContext* cx, JSObject* object);
 void __Screen_updateACS (JSContext* cx);
 
 static JSFunctionSpec Screen_methods[] = {
+    {"init",       Screen_init,       0, 0, 0},
     {"cursorMode", Screen_cursorMode, 0, 0, 0},
     {NULL}
 };

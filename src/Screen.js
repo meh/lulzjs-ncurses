@@ -16,7 +16,7 @@
 * along with lulzJS-ncurses.  If not, see <http://www.gnu.org/licenses/>.   *
 ****************************************************************************/
 
-Object.extend(ncurses.Screen.prototype, {
+Object.extend(ncurses.Screen, {
     refresh: function () {
         this.__window.refresh();
     },

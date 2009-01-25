@@ -23,6 +23,8 @@ Object.extend(ncurses.Panel.prototype, {
 
     resize: function (obj) {
         this.__window.resize(obj);
+        ncurses.Screen.refresh();
+        ncurses.Panel.update();
     },
 
     printChar: function (ch, options) {
@@ -44,10 +46,10 @@ Object.extend(ncurses.Panel.prototype, {
 
 Object.addGetters(ncurses.Panel, {
     Size: function () {
-        this.__window.Size;
+        return this.__window.Size;
     },
 
     Position: function () {
-        this.__window.Position;
+        return this.__window.Position;
     }
 });

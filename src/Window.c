@@ -186,13 +186,27 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         return JS_FALSE;
     }
 
+    if (!JSVAL_IS_INT(width)) {
+        JS_GetProperty(cx, object, "Size", &width);
+        JS_GetProperty(cx, JSVAL_TO_OBJECT(width), "Width", &width);
+    }
+
+    if (!JSVAL_IS_INT(height)) {
+        JS_GetProperty(cx, object, "Size", &height);
+        JS_GetProperty(cx, JSVAL_TO_OBJECT(width), "Height", &height);
+    }
+
     WindowInformation* data = JS_GetPrivate(cx, object);
-    wresize(data->win, height, width);
+
     if (data->border) {
+        wborder(data->win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+        wresize(data->win, height, width);
         box(data->win, 0, 0);
     }
+    else {
+        wresize(data->win, height+2, width+2);
+    }
     wrefresh(data->win);
-
 
     __Window_updateSize(cx, object);
 
