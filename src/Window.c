@@ -67,6 +67,9 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     JS_GetProperty(cx, options, "x", &x);
     JS_GetProperty(cx, options, "y", &y);
 
+    jsval jsBorder; JS_GetProperty(cx, options, "border", &jsBorder);
+    JSBool border; JS_ValueToBoolean(cx, jsBorder, &border);
+
     if (!JSVAL_IS_INT(width) || !JSVAL_IS_INT(height) || !JSVAL_IS_INT(x) || !JSVAL_IS_INT(y)) {
         width  = INT_TO_JSVAL(0);
         height = INT_TO_JSVAL(0);
@@ -74,25 +77,25 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         y      = INT_TO_JSVAL(0);
     }
     
-    WindowInformation* data = JS_malloc(cx, sizeof(WindowInformation));
+    WINDOW* win;
     switch (argc) {
         case 0:
         case 1: {
-            data->win = newwin(
-                JSVAL_TO_INT(height), JSVAL_TO_INT(width),
+            win = newwin(
+                JSVAL_TO_INT(border ? height+3 : height), JSVAL_TO_INT(border ? width+3 : width),
                 JSVAL_TO_INT(y), JSVAL_TO_INT(x)
             );
         } break;
 
         case 2: {
-            WINDOW* parentWin = ((WindowInformation*)JS_GetPrivate(cx, parent))->win;
-            data->win = subwin(parentWin,
-                JSVAL_TO_INT(height), JSVAL_TO_INT(width),
+            WINDOW* parentWin = JS_GetPrivate(cx, parent);
+            win = subwin(parentWin,
+                JSVAL_TO_INT(border ? height+3 : height), JSVAL_TO_INT(border ? width+3 : width),
                 JSVAL_TO_INT(y), JSVAL_TO_INT(x)
             );
         } break;
     }
-    JS_SetPrivate(cx, object, data);
+    JS_SetPrivate(cx, object, win);
 
     JSObject* Size   = JS_NewObject(cx, NULL, NULL, NULL);
     jsval     jsSize = OBJECT_TO_JSVAL(Size);
@@ -104,17 +107,15 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     JS_SetProperty(cx, object, "Position", &jsPosition);
     __Window_updatePosition(cx, object);
 
-    jsval jsBorder; JS_GetProperty(cx, options, "border", &jsBorder);
-    JSBool border; JS_ValueToBoolean(cx, jsBorder, &border);
     if (border) {
-        box(data->win, 0, 0);
-        data->border = JS_TRUE;
+        box(win, 0, 0);
+        JS_DefineProperty(cx, object, "border", JSVAL_TRUE, NULL, NULL, JSPROP_READONLY);
     }
     else {
-        data->border = JS_FALSE;
+        JS_DefineProperty(cx, object, "border", JSVAL_FALSE, NULL, NULL, JSPROP_READONLY);
     }
 
-    wrefresh(data->win);
+    wrefresh(win);
 
     return JS_TRUE;
 }
@@ -122,19 +123,17 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
 void
 Window_finalize (JSContext* cx, JSObject* object)
 {
-    WindowInformation* data = JS_GetPrivate(cx, object);
+    WINDOW* win = JS_GetPrivate(cx, object);
 
-    if (data) {
-        if (data->win && data->win != stdscr) {
-            delwin(data->win);
-        }
+    if (win && win != stdscr) {
+        delwin(win);
     }
 }
 
 JSBool
 Window_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
+    WINDOW* win = JS_GetPrivate(cx, object);
 
     wrefresh(win);
     return JS_TRUE;
@@ -196,17 +195,19 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         JS_GetProperty(cx, JSVAL_TO_OBJECT(width), "Height", &height);
     }
 
-    WindowInformation* data = JS_GetPrivate(cx, object);
-    if (data->border) {
-        wborder(data->win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
-        wrefresh(data->win);
-        wresize(data->win, height, width);
-        box(data->win, 0, 0);
+    WINDOW* win = JS_GetPrivate(cx, object);
+
+    jsval border; JS_GetProperty(cx, object, "border", &border);
+    if (JSVAL_TO_BOOLEAN(border)) {
+        wborder(win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+        wrefresh(win);
+        wresize(win, JSVAL_TO_INT(height+3), JSVAL_TO_INT(width+3));
+        box(win, 0, 0);
     }
     else {
-        wresize(data->win, height+2, width+2);
+        wresize(win, JSVAL_TO_INT(height), JSVAL_TO_INT(width));
     }
-    wrefresh(data->win);
+    wrefresh(win);
 
     __Window_updateSize(cx, object);
 
@@ -222,7 +223,7 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         return JS_FALSE;
     }
 
-    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
+    WINDOW* win = JS_GetPrivate(cx, object);
 
     jsint ch; JS_ValueToInt32(cx, argv[0], &ch);
 
@@ -264,7 +265,7 @@ Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 {
     JSObject* options;
 
-    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
+    WINDOW* win = JS_GetPrivate(cx, object);
 
     if (argc == 0) {
         *rval = INT_TO_JSVAL(wgetch(win));
@@ -300,7 +301,7 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         return JS_FALSE;
     }
 
-    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
+    WINDOW* win = JS_GetPrivate(cx, object);
 
     if (argc == 1){
         wprintw(win, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
@@ -385,16 +386,18 @@ void
 __Window_updateSize (JSContext* cx, JSObject* object)
 {
     int height, width;
-    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
+    WINDOW* win = JS_GetPrivate(cx, object);
     getmaxyx(win, height, width);
 
-    jsval jsSize; JS_GetProperty(cx, object, "Size", &jsSize);
-    JSObject* Size = JSVAL_TO_OBJECT(jsSize);
-
     jsval property;
-    property = INT_TO_JSVAL(height);
+    JS_GetProperty(cx, object, "Size", &property);
+    JSObject* Size = JSVAL_TO_OBJECT(property);
+    JS_GetProperty(cx, object, "border", &property);
+    JSBool border = JSVAL_TO_BOOLEAN(property);
+
+    property = INT_TO_JSVAL(border ? height-2 : height);
     JS_SetProperty(cx, Size, "Height", &property);
-    property = INT_TO_JSVAL(width);
+    property = INT_TO_JSVAL(border ? width-2 : width);
     JS_SetProperty(cx, Size, "Width", &property);
 }
 
@@ -402,7 +405,7 @@ void
 __Window_updatePosition (JSContext* cx, JSObject* object)
 {
     int y, x;
-    WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
+    WINDOW* win = JS_GetPrivate(cx, object);
     getbegyx(win, y, x);
 
     jsval jsPosition; JS_GetProperty(cx, object, "Position", &jsPosition);

@@ -66,7 +66,7 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
     property = OBJECT_TO_JSVAL(Window);
     JS_SetProperty(cx, object, "__window", &property);
 
-    PANEL* panel = new_panel(((WindowInformation*)JS_GetPrivate(cx, Window))->win);
+    PANEL* panel = new_panel((WINDOW*)JS_GetPrivate(cx, Window));
     JS_SetPrivate(cx, object, panel);
     
     update_panels();

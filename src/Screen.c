@@ -93,11 +93,8 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     JSObject* Window = JS_NewObject(cx, class, proto, NULL); 
     property = OBJECT_TO_JSVAL(Window);
     JS_SetProperty(cx, object, "__window", &property);
-
-    WindowInformation* windowData = JS_malloc(cx, sizeof(WindowInformation));
-    windowData->win    = stdscr;
-    windowData->border = JS_FALSE;
-    JS_SetPrivate(cx, Window, windowData);
+    JS_SetPrivate(cx, Window, stdscr);
+    JS_DefineProperty(cx, Window, "border", JSVAL_FALSE, NULL, NULL, JSPROP_READONLY);
 
     if (argc > 0) {
         JS_ValueToObject(cx, argv[0], &options);
