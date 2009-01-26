@@ -135,6 +135,44 @@ Panel_show (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
 }
 
 JSBool
+Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* options;
+
+    if (argc < 1) {
+        JS_ReportError(cx, "Not enough parameters.");
+        return JS_FALSE;
+    }
+
+    JS_ValueToObject(cx, argv[0], &options);
+    jsval x; JS_GetProperty(cx, options, "x", &x);
+    jsval y; JS_GetProperty(cx, options, "y", &y);
+
+    if (!JSVAL_IS_INT(x) && !JSVAL_IS_INT(y)) {
+        JS_ReportError(cx, "An option isn't an int.");
+        return JS_FALSE;
+    }
+
+    if (!JSVAL_IS_INT(x)) {
+        JS_GetProperty(cx, object, "Position", &x);
+        JS_GetProperty(cx, JSVAL_TO_OBJECT(x), "X", &x);
+    }
+
+    if (!JSVAL_IS_INT(y)) {
+        JS_GetProperty(cx, object, "Position", &y);
+        JS_GetProperty(cx, JSVAL_TO_OBJECT(y), "Y", &y);
+    }
+
+    PANEL* panel = JS_GetPrivate(cx, object);
+    move_panel(panel, JSVAL_TO_INT(y), JSVAL_TO_INT(x));
+    refresh();
+    update_panels();
+    doupdate();
+
+    return JS_TRUE;
+}
+
+JSBool
 Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     PANEL* panel = JS_GetPrivate(cx, object);

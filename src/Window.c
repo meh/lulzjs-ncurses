@@ -192,14 +192,14 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 
     if (!JSVAL_IS_INT(height)) {
         JS_GetProperty(cx, object, "Size", &height);
-        JS_GetProperty(cx, JSVAL_TO_OBJECT(width), "Height", &height);
+        JS_GetProperty(cx, JSVAL_TO_OBJECT(height), "Height", &height);
     }
 
     WINDOW* win = JS_GetPrivate(cx, object);
 
     jsval border; JS_GetProperty(cx, object, "border", &border);
     if (JSVAL_TO_BOOLEAN(border)) {
-        wborder(win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+        wborder(win,' ',' ',' ',' ',' ',' ',' ',' ');
         wrefresh(win);
         wresize(win, JSVAL_TO_INT(height+3), JSVAL_TO_INT(width+3));
         box(win, 0, 0);

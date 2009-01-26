@@ -14,3 +14,5 @@ panels[0].below.getChar();
 panels[0].resize({height: 1});
 panels[0].printString("Width: {Width}, Height: {Height}   ".format(panels[0].Size), {x: 1, y: 1});
 panels[0].getChar();
+panels[0].move({x: 7, y: 20});
+panels[0].getChar();
