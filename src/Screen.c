@@ -155,7 +155,9 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 
     // Cursor state
     JS_GetProperty(cx, options, "cursor", &option);
-    curs_set(JS_ParseInt(cx, option, 0));
+    jsint cursor = JS_ParseInt(cx, option, 0);
+    curs_set(cursor);
+    option = INT_TO_JSVAL(cursor);
     JS_SetProperty(cx, object, "cursor", &option);
 
     *rval = OBJECT_TO_JSVAL(object);

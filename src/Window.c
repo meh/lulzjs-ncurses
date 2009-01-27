@@ -21,7 +21,7 @@
 void __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply);
 void __Window_updatePosition (JSContext* cx, JSObject* object);
 void __Window_updateSize (JSContext* cx, JSObject* object);
-void __Window_echofy (jsval echo, JSBool echoing, JSBool start);
+void __Window_echofy (jsval echo, JSBool echoing, jsint cursor, JSBool start);
 JSString* __Window_readLine (JSContext* cx, WINDOW* win, JSBool moveFirst, jsval x, jsval y);
 
 JSBool exec (JSContext* cx) { return Window_initialize(cx); }
@@ -348,17 +348,22 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
     JS_GetProperty(cx, JSVAL_TO_OBJECT(parent), "Screen", &parent);
     JSObject* Screen = JSVAL_TO_OBJECT(parent);
 
-    jsval property; JS_GetProperty(cx, Screen, "echo", &property);
+    jsval property;
+    JS_GetProperty(cx, Screen, "echo", &property);
     JSBool windowEchoing = JSVAL_TO_BOOLEAN(property);
+    JS_GetProperty(cx, Screen, "cursor", &property);
+    jsint windowCursor = JSVAL_TO_INT(property);
 
     if (argc == 0) {
         echo();
+        curs_set(1);
 
         *rval = STRING_TO_JSVAL(__Window_readLine(cx, win, JS_FALSE, 0, 0));
 
         if (!windowEchoing) {
             noecho();
         }
+        curs_set(windowCursor);
     }
     else {
         JS_ValueToObject(cx, argv[0], &options);
@@ -374,14 +379,14 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         JS_GetProperty(cx, options, "echo", &jsEcho);
 
         if (!JSVAL_IS_INT(x) || !JSVAL_IS_INT(y)) {
-            __Window_echofy(jsEcho, windowEchoing, JS_TRUE);
+            __Window_echofy(jsEcho, windowEchoing, windowCursor, JS_TRUE);
             *rval = STRING_TO_JSVAL(__Window_readLine(cx, win, JS_FALSE, 0, 0));
-            __Window_echofy(jsEcho, windowEchoing, JS_FALSE);
+            __Window_echofy(jsEcho, windowEchoing, windowCursor, JS_FALSE);
         }
         else {
-            __Window_echofy(jsEcho, windowEchoing, JS_TRUE);
+            __Window_echofy(jsEcho, windowEchoing, windowCursor, JS_TRUE);
             *rval = STRING_TO_JSVAL(__Window_readLine(cx, win, JS_TRUE, x, y));
-            __Window_echofy(jsEcho, windowEchoing, JS_FALSE);
+            __Window_echofy(jsEcho, windowEchoing, windowCursor, JS_FALSE);
         }
     }
 
@@ -389,11 +394,12 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
 }
 
 void
-__Window_echofy (jsval jsEcho, JSBool echoing, JSBool start)
+__Window_echofy (jsval jsEcho, JSBool echoing, jsint cursor, JSBool start)
 {
     if (start) {
         if (JSVAL_IS_BOOLEAN(jsEcho)) {
             if (JSVAL_TO_BOOLEAN(jsEcho)) {
+                curs_set(1);
                 echo();
             }
             else {
@@ -401,13 +407,18 @@ __Window_echofy (jsval jsEcho, JSBool echoing, JSBool start)
             }
         }
         else {
+            curs_set(1);
             echo();
         }
     }
     else {
-        if (!echoing) {
+        if (echoing) {
+            echo();
+        }
+        else {
             noecho();
         }
+        curs_set(cursor);
     }
 }
 
