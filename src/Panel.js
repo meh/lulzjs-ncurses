@@ -41,7 +41,14 @@ Object.extend(ncurses.Panel.prototype, {
     printString: function (str, options) {
         if (options) this.__window.printString(str, options);
         else         this.__window.printString(str);
+    },
+
+    getString: function (options) {
+        return (options 
+            ? this.__window.getString(options)
+            : this.__window.getString());
     }
+
 });
 
 Object.addGetters(ncurses.Panel, {

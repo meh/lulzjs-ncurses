@@ -18,6 +18,12 @@
 
 #include "Window.h"
 
+void __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply);
+void __Window_updatePosition (JSContext* cx, JSObject* object);
+void __Window_updateSize (JSContext* cx, JSObject* object);
+void __Window_echofy (jsval echo, JSBool echoing, JSBool start);
+JSString* __Window_readLine (JSContext* cx, WINDOW* win, JSBool moveFirst, jsval x, jsval y);
+
 JSBool exec (JSContext* cx) { return Window_initialize(cx); }
 
 JSBool
@@ -335,15 +341,24 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
 {
     JSObject* options;
 
-    WINDOW* win = JS_GetPrivate(cx, object)
+    WINDOW* win = JS_GetPrivate(cx, object);
 
     jsval parent;
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &parent);
     JS_GetProperty(cx, JSVAL_TO_OBJECT(parent), "Screen", &parent);
     JSObject* Screen = JSVAL_TO_OBJECT(parent);
 
+    jsval property; JS_GetProperty(cx, Screen, "echo", &property);
+    JSBool windowEchoing = JSVAL_TO_BOOLEAN(property);
+
     if (argc == 0) {
-        *rval = INT_TO_JSVAL(wgetch(win));
+        echo();
+
+        *rval = STRING_TO_JSVAL(__Window_readLine(cx, win, JS_FALSE, 0, 0));
+
+        if (!windowEchoing) {
+            noecho();
+        }
     }
     else {
         JS_ValueToObject(cx, argv[0], &options);
@@ -353,19 +368,71 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
             return JS_FALSE;
         }
 
-        jsval x, y;
+        jsval x, y, jsEcho;
         JS_GetProperty(cx, options, "x", &x);
         JS_GetProperty(cx, options, "y", &y);
+        JS_GetProperty(cx, options, "echo", &jsEcho);
 
         if (!JSVAL_IS_INT(x) || !JSVAL_IS_INT(y)) {
-            JS_ReportError(cx, "An option is missing or isn't an int.");
-            return JS_FALSE;
+            __Window_echofy(jsEcho, windowEchoing, JS_TRUE);
+            *rval = STRING_TO_JSVAL(__Window_readLine(cx, win, JS_FALSE, 0, 0));
+            __Window_echofy(jsEcho, windowEchoing, JS_FALSE);
         }
-
-        *rval = INT_TO_JSVAL(mvwgetch(win, JSVAL_TO_INT(y), JSVAL_TO_INT(x)));
+        else {
+            __Window_echofy(jsEcho, windowEchoing, JS_TRUE);
+            *rval = STRING_TO_JSVAL(__Window_readLine(cx, win, JS_TRUE, x, y));
+            __Window_echofy(jsEcho, windowEchoing, JS_FALSE);
+        }
     }
 
     return JS_TRUE;
+}
+
+void
+__Window_echofy (jsval jsEcho, JSBool echoing, JSBool start)
+{
+    if (start) {
+        if (JSVAL_IS_BOOLEAN(jsEcho)) {
+            if (JSVAL_TO_BOOLEAN(jsEcho)) {
+                echo();
+            }
+            else {
+                noecho();
+            }
+        }
+        else {
+            echo();
+        }
+    }
+    else {
+        if (!echoing) {
+            noecho();
+        }
+    }
+}
+
+JSString*
+__Window_readLine (JSContext* cx, WINDOW* win, JSBool moveFirst, jsval x, jsval y)
+{
+    char* string  = JS_malloc(cx, 512*sizeof(char));
+    size_t length = 0;
+
+    string[0] = (moveFirst
+        ? mvwgetch(win, JSVAL_TO_INT(y), JSVAL_TO_INT(x))
+        : wgetch(win));
+    
+    while (string[(++length)-1] != '\n') {
+        if ((length+1) % 512) {
+            string = JS_realloc(cx, string, (length+512+1)*sizeof(char));
+        }
+    
+        string[length] = (char) wgetch(win);
+    }
+
+    string[length-1] = '\0';
+    string = JS_realloc(cx, string, length*sizeof(char));
+
+    return JS_NewString(cx, string, strlen(string));
 }
 
 void

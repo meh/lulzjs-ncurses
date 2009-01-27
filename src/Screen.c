@@ -18,6 +18,9 @@
 
 #include "Screen.h"
 
+void __Screen_updateSize (JSContext* cx, JSObject* object);
+void __Screen_updateACS (JSContext* cx);
+
 static JSContext* signalCx;
 static JSObject*  signalObject;
 void __Screen_resize (int signum) {
@@ -59,7 +62,7 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     JSObject* options;
 
     if (stdscr) {
-        JS_ReportError(cx, "You can have only one Screen per program.") {
+        JS_ReportError(cx, "You can have only one Screen per program.");
         return JS_FALSE;
     }
 
@@ -120,12 +123,13 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     JSBool js_echo; JS_ValueToBoolean(cx, option, &js_echo);
     if (JSVAL_IS_VOID(option) || !js_echo) {
         noecho();
-        data->echo = JS_FALSE;
+        option = JSVAL_FALSE;
     }
     else {
         echo();
-        data->echo = JS_TRUE;
+        option = JSVAL_TRUE;
     }
+    JS_SetProperty(cx, object, "echo", &option);
 
     // Buffering type
     JS_GetProperty(cx, options, "buffering", &option);

@@ -23,8 +23,6 @@
 #include "Window_private.h"
 #include <signal.h>
 
-void __Screen_resize (int signum);
-
 extern JSBool exec (JSContext* cx);
 extern JSBool Screen_initialize (JSContext* cx);
 
@@ -42,9 +40,6 @@ static JSClass Screen_class = {
 extern JSBool Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Screen_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-
-void __Screen_updateSize (JSContext* cx, JSObject* object);
-void __Screen_updateACS (JSContext* cx);
 
 static JSFunctionSpec Screen_methods[] = {
     {"init",       Screen_init,       0, 0, 0},

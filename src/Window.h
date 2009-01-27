@@ -45,10 +45,6 @@ extern JSBool Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsv
 extern JSBool Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-void __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply);
-void __Window_updateSize (JSContext* cx, JSObject* object);
-void __Window_updatePosition (JSContext* cx, JSObject* object);
-
 static JSFunctionSpec Window_methods[] = {
     {"refresh", Window_refresh, 0, 0, 0},
     {"redraw",  Window_redraw,  0, 0, 0},
