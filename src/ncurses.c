@@ -37,11 +37,11 @@ ncurses_initialize (JSContext* cx)
         JSObject* Buffering   = JS_NewObject(cx, NULL, NULL, NULL);
         jsval     jsBuffering = OBJECT_TO_JSVAL(Buffering);
         JS_SetProperty(cx, object, "Buffering", &jsBuffering);
-            property = INT_TO_JSVAL(Normal);
+            property = INT_TO_JSVAL(1);
             JS_SetProperty(cx, Buffering, "Normal", &property);
-            property = INT_TO_JSVAL(Raw);
+            property = INT_TO_JSVAL(2);
             JS_SetProperty(cx, Buffering, "Raw", &property);
-            property = INT_TO_JSVAL(CBreak);
+            property = INT_TO_JSVAL(3);
             JS_SetProperty(cx, Buffering, "CBreak", &property);
 
         JSObject* Colors   = JS_NewObject(cx, NULL, NULL, NULL);

@@ -83,9 +83,6 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
         use_default_colors();
     }
 
-    ScreenInformation* data = JS_malloc(cx, sizeof(ScreenInformation));
-    JS_SetPrivate(cx, object, data);
-
     jsval property;
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &property);
     JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "Window", &property);
@@ -135,9 +132,9 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     JS_GetProperty(cx, options, "buffering", &option);
     jsint js_buffering = JS_ParseInt(cx, option, 0);
     switch (js_buffering) {
-        case Raw   : raw(); break;
-        case CBreak: cbreak(); break;
-        default    : option = INT_TO_JSVAL(Normal); break;
+        case  2: raw(); break;
+        case  3: cbreak(); break;
+        default: option = INT_TO_JSVAL(1); break;
     }
     JS_SetProperty(cx, object, "buffering", &option);
 
@@ -168,27 +165,29 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 void
 Screen_finalize (JSContext* cx, JSObject* object)
 {
-    ScreenInformation* data = JS_GetPrivate(cx, object);
+    jsval jsScreen, jsBuffering, jsKeypad, jsEcho;
+    JS_GetProperty(cx, object, "ncurses", &jsScreen);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsScreen), "Screen", &jsScreen);
 
-    if (data) {
-        switch (data->buffering) {
-            case Raw   : noraw(); break;
-            case CBreak: nocbreak(); break;
-        }
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsScreen), "buffering", &jsBuffering);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsScreen), "keypad", &jsBuffering);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsScreen), "echo", &jsBuffering);
 
-        if (data->keypad) {
-            keypad(stdscr, FALSE);
-        }
-
-        if (!data->echo) {
-            echo();
-        }
-
-        curs_set(1);
-        endwin();
-
-        JS_free(cx, data);
+    switch (JSVAL_TO_INT(jsBuffering)) {
+        case 2: noraw(); break;
+        case 3: nocbreak(); break;
     }
+
+    if (JSVAL_TO_BOOLEAN(jsKeypad)) {
+        keypad(stdscr, FALSE);
+    }
+
+    if (!JSVAL_TO_BOOLEAN(jsEcho)) {
+        echo();
+    }
+
+    curs_set(1);
+    endwin();
 }
 
 JSBool
