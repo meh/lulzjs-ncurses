@@ -43,6 +43,7 @@ extern JSBool Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval
 extern JSBool Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 extern JSBool Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+extern JSBool Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 void __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply);
 void __Window_updateSize (JSContext* cx, JSObject* object);
@@ -57,6 +58,7 @@ static JSFunctionSpec Window_methods[] = {
     {"getChar",   Window_getChar,   0, 0, 0},
 
     {"printString", Window_printString, 0, 0, 0},
+    {"getString",   Window_getString,   0, 0, 0},
 
     {NULL}
 };

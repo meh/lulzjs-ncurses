@@ -59,7 +59,7 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     JSObject* options;
 
     if (stdscr) {
-        JS_ReportError(cx, "You can have only one Screen per program. (At the moment :3)");
+        JS_ReportError(cx, "You can have only one Screen per program.") {
         return JS_FALSE;
     }
 
@@ -131,25 +131,28 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     JS_GetProperty(cx, options, "buffering", &option);
     jsint js_buffering = JS_ParseInt(cx, option, 0);
     switch (js_buffering) {
-        case Raw   : raw();    data->buffering = Raw; break;
-        case CBreak: cbreak(); data->buffering = CBreak; break;
-        default    : data->buffering = Normal; break;
+        case Raw   : raw(); break;
+        case CBreak: cbreak(); break;
+        default    : option = INT_TO_JSVAL(Normal); break;
     }
+    JS_SetProperty(cx, object, "buffering", &option);
 
     // Keypad initialization
     JS_GetProperty(cx, options, "keypad", &option);
     JSBool js_keypad; JS_ValueToBoolean(cx, option, &js_keypad);
     if (JSVAL_IS_VOID(option) || js_keypad) {
         keypad(stdscr, TRUE);
-        data->keypad = JS_TRUE;
+        option = JSVAL_TRUE;
     }
     else {
-        data->keypad = JS_FALSE;
+        option = JSVAL_FALSE;
     }
+    JS_SetProperty(cx, object, "keypad", &option);
 
     // Cursor state
     JS_GetProperty(cx, options, "cursor", &option);
     curs_set(JS_ParseInt(cx, option, 0));
+    JS_SetProperty(cx, object, "cursor", &option);
 
     *rval = OBJECT_TO_JSVAL(object);
 

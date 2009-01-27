@@ -330,6 +330,44 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     return JS_TRUE;
 }
 
+JSBool
+Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    JSObject* options;
+
+    WINDOW* win = JS_GetPrivate(cx, object)
+
+    jsval parent;
+    JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &parent);
+    JS_GetProperty(cx, JSVAL_TO_OBJECT(parent), "Screen", &parent);
+    JSObject* Screen = JSVAL_TO_OBJECT(parent);
+
+    if (argc == 0) {
+        *rval = INT_TO_JSVAL(wgetch(win));
+    }
+    else {
+        JS_ValueToObject(cx, argv[0], &options);
+
+        if (!options) {
+            JS_ReportError(cx, "Options isn't a valid object.");
+            return JS_FALSE;
+        }
+
+        jsval x, y;
+        JS_GetProperty(cx, options, "x", &x);
+        JS_GetProperty(cx, options, "y", &y);
+
+        if (!JSVAL_IS_INT(x) || !JSVAL_IS_INT(y)) {
+            JS_ReportError(cx, "An option is missing or isn't an int.");
+            return JS_FALSE;
+        }
+
+        *rval = INT_TO_JSVAL(mvwgetch(win, JSVAL_TO_INT(y), JSVAL_TO_INT(x)));
+    }
+
+    return JS_TRUE;
+}
+
 void
 __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply)
 {
