@@ -66,10 +66,26 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     }
 
     JS_ValueToObject(cx, argv[offset], &options);
+    
     JS_GetProperty(cx, options, "width", &width);
+    if (JSVAL_IS_VOID(width) || JSVAL_IS_UNDEFINED(width)) {
+        JS_GetProperty(cx, options, "Width", &width);
+    }
+
     JS_GetProperty(cx, options, "height", &height);
+    if (JSVAL_IS_VOID(height) || JSVAL_IS_UNDEFINED(height)) {
+        JS_GetProperty(cx, options, "Height", &height);
+    }
+
     JS_GetProperty(cx, options, "x", &x);
+    if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+        JS_GetProperty(cx, options, "X", &x);
+    }
+
     JS_GetProperty(cx, options, "y", &y);
+    if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+        JS_GetProperty(cx, options, "Y", &y);
+    }
 
     jsval jsBorder; JS_GetProperty(cx, options, "border", &jsBorder);
     JSBool border; JS_ValueToBoolean(cx, jsBorder, &border);
@@ -181,8 +197,18 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
     }
 
     JS_ValueToObject(cx, argv[0], &options);
-    jsval width; JS_GetProperty(cx, options, "width", &width);
-    jsval height; JS_GetProperty(cx, options, "height", &height);
+
+    jsval width, height;
+
+    JS_GetProperty(cx, options, "width", &width);
+    if (JSVAL_IS_VOID(width) || JSVAL_IS_UNDEFINED(width)) {
+        JS_GetProperty(cx, options, "Width", &width);
+    }
+
+    JS_GetProperty(cx, options, "height", &height);
+    if (JSVAL_IS_VOID(height) || JSVAL_IS_UNDEFINED(height)) {
+        JS_GetProperty(cx, options, "Height", &height);
+    }
 
     if (!JSVAL_IS_INT(width) && !JSVAL_IS_INT(height)) {
         JS_ReportError(cx, "An option isn't an int.");
@@ -238,8 +264,16 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         JSObject* options; JS_ValueToObject(cx, argv[1], &options);
 
         jsval x, y;
+
         JS_GetProperty(cx, options, "x", &x);
+        if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+            JS_GetProperty(cx, options, "X", &x);
+        }
+
         JS_GetProperty(cx, options, "y", &y);
+        if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+            JS_GetProperty(cx, options, "Y", &y);
+        }
 
         jsval jsEcho; JS_GetProperty(cx, options, "echo", &jsEcho);
         JSBool echo; JS_ValueToBoolean(cx, jsEcho, &echo);
@@ -283,8 +317,16 @@ Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
         }
 
         jsval x, y;
+
         JS_GetProperty(cx, options, "x", &x);
+        if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+            JS_GetProperty(cx, options, "X", &x);
+        }
+
         JS_GetProperty(cx, options, "y", &y);
+        if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+            JS_GetProperty(cx, options, "Y", &y);
+        }
 
         if (!JSVAL_IS_INT(x) || !JSVAL_IS_INT(y)) {
             JS_ReportError(cx, "An option is missing or isn't an int.");
@@ -314,8 +356,16 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         JSObject* options; JS_ValueToObject(cx, argv[1], &options);
 
         jsval x, y;
+
         JS_GetProperty(cx, options, "x", &x);
+        if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+            JS_GetProperty(cx, options, "X", &x);
+        }
+
         JS_GetProperty(cx, options, "y", &y);
+        if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+            JS_GetProperty(cx, options, "Y", &y);
+        }
 
         __Window_options(cx, win, options, JS_TRUE);
         if (!JSVAL_IS_INT(x) && !JSVAL_IS_INT(y)) {

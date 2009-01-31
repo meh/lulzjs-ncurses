@@ -143,8 +143,17 @@ Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
     }
 
     JS_ValueToObject(cx, argv[0], &options);
-    jsval x; JS_GetProperty(cx, options, "x", &x);
-    jsval y; JS_GetProperty(cx, options, "y", &y);
+    jsval x, y;
+
+    JS_GetProperty(cx, options, "x", &x);
+    if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+        JS_GetProperty(cx, options, "X", &x);
+    }
+
+    JS_GetProperty(cx, options, "y", &y);
+    if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+        JS_GetProperty(cx, options, "Y", &y);
+    }
 
     if (!JSVAL_IS_INT(x) && !JSVAL_IS_INT(y)) {
         JS_ReportError(cx, "An option isn't an int.");
