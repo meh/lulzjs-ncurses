@@ -36,8 +36,6 @@ Panel_initialize (JSContext* cx)
     );
 
     if (object) {
-        jsval property;
-
         return JS_TRUE;
     }
 

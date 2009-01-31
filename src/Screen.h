@@ -35,6 +35,8 @@ static JSClass Screen_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Screen_finalize
 };
 
+#include "Screen_private.h"
+
 extern JSBool Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Screen_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 extern JSBool Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);

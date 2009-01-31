@@ -47,9 +47,6 @@ Screen_initialize (JSContext* cx)
     if (object) {
         JS_DefineFunctions(cx, object, Screen_methods);
 
-        // Default properties
-        jsval property;
-
         return JS_TRUE;
     }
 
@@ -65,6 +62,8 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
         JS_ReportError(cx, "You can have only one Screen per program.");
         return JS_FALSE;
     }
+
+    ScreenInformation* data = JS_malloc(cx, sizeof(ScreenInformation));
 
     signalCx     = cx;
     signalObject = object;
@@ -126,6 +125,7 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
         echo();
         option = JSVAL_TRUE;
     }
+    data->echo = JSVAL_TO_BOOLEAN(option);
     JS_SetProperty(cx, object, "echo", &option);
 
     // Buffering type
@@ -136,6 +136,7 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
         case  3: cbreak(); break;
         default: option = INT_TO_JSVAL(1); break;
     }
+    data->buffering = JSVAL_TO_INT(option);
     JS_SetProperty(cx, object, "buffering", &option);
 
     // Keypad initialization
@@ -148,6 +149,7 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     else {
         option = JSVAL_FALSE;
     }
+    data->keypad = JSVAL_TO_BOOLEAN(option);
     JS_SetProperty(cx, object, "keypad", &option);
 
     // Cursor state
@@ -165,29 +167,27 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 void
 Screen_finalize (JSContext* cx, JSObject* object)
 {
-    jsval jsScreen, jsBuffering, jsKeypad, jsEcho;
-    JS_GetProperty(cx, object, "ncurses", &jsScreen);
-    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsScreen), "Screen", &jsScreen);
+    ScreenInformation* data = JS_GetPrivate(cx, object);
 
-    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsScreen), "buffering", &jsBuffering);
-    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsScreen), "keypad", &jsBuffering);
-    JS_GetProperty(cx, JSVAL_TO_OBJECT(jsScreen), "echo", &jsBuffering);
+    if (data) {
+        switch (data->buffering) {
+            case 2: noraw(); break;
+            case 3: nocbreak(); break;
+        }
 
-    switch (JSVAL_TO_INT(jsBuffering)) {
-        case 2: noraw(); break;
-        case 3: nocbreak(); break;
+        if (data->keypad) {
+            keypad(stdscr, FALSE);
+        }
+
+        if (!data->echo) {
+            echo();
+        }
+
+        curs_set(1);
+        endwin();
+
+        JS_free(cx, data);
     }
-
-    if (JSVAL_TO_BOOLEAN(jsKeypad)) {
-        keypad(stdscr, FALSE);
-    }
-
-    if (!JSVAL_TO_BOOLEAN(jsEcho)) {
-        echo();
-    }
-
-    curs_set(1);
-    endwin();
 }
 
 JSBool

@@ -39,8 +39,6 @@ Window_initialize (JSContext* cx)
     );
 
     if (object) {
-        // Default properties
-        jsval property;
 
         return JS_TRUE;
     }
@@ -83,7 +81,7 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         y      = INT_TO_JSVAL(0);
     }
     
-    WINDOW* win;
+    WINDOW* win = NULL;
     switch (argc) {
         case 0:
         case 1: {
