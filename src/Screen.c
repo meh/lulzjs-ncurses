@@ -64,6 +64,7 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
     }
 
     ScreenInformation* data = JS_malloc(cx, sizeof(ScreenInformation));
+    JS_SetPrivate(cx, object, data);
 
     signalCx     = cx;
     signalObject = object;
