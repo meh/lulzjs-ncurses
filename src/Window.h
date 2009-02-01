@@ -16,8 +16,8 @@
 * along with lulzJS-ncurses.  If not, see <http://www.gnu.org/licenses/>.   *
 ****************************************************************************/
 
-#ifndef _LULZJS_NCURSES_SCREEN_H
-#define _LULZJS_NCURSES_SCREEN_H
+#ifndef _LULZJS_NCURSES_WINDOW_H
+#define _LULZJS_NCURSES_WINDOW_H
 
 #include "common.h"
 

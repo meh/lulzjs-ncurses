@@ -39,7 +39,6 @@ Window_initialize (JSContext* cx)
     );
 
     if (object) {
-
         return JS_TRUE;
     }
 

@@ -8,11 +8,11 @@ CFLAGS     = -Os -DXP_UNIX -DJS_THREADSAFE -D__LIB_VERSION__="\"${VERSION}\"" -I
 LDFLAGS    = -ljs -llulzjs
 
 ifdef DEBUG
-CFLAGS += -g
+CFLAGS += -g -Wall
 endif
 
 ifdef DDEBUG
-CFLAGS += -DDEBUG -g
+CFLAGS += -DDEBUG -g -Wall
 endif
 
 LIB_DIR     = src
