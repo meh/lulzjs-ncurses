@@ -67,22 +67,22 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     JS_ValueToObject(cx, argv[offset], &options);
     
     JS_GetProperty(cx, options, "width", &width);
-    if (JSVAL_IS_VOID(width) || JSVAL_IS_UNDEFINED(width)) {
+    if (JSVAL_IS_VOID(width) || JSVAL_IS_NULL(width)) {
         JS_GetProperty(cx, options, "Width", &width);
     }
 
     JS_GetProperty(cx, options, "height", &height);
-    if (JSVAL_IS_VOID(height) || JSVAL_IS_UNDEFINED(height)) {
+    if (JSVAL_IS_VOID(height) || JSVAL_IS_NULL(height)) {
         JS_GetProperty(cx, options, "Height", &height);
     }
 
     JS_GetProperty(cx, options, "x", &x);
-    if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+    if (JSVAL_IS_VOID(x) || JSVAL_IS_NULL(x)) {
         JS_GetProperty(cx, options, "X", &x);
     }
 
     JS_GetProperty(cx, options, "y", &y);
-    if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+    if (JSVAL_IS_VOID(y) || JSVAL_IS_NULL(y)) {
         JS_GetProperty(cx, options, "Y", &y);
     }
 
@@ -200,12 +200,12 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
     jsval width, height;
 
     JS_GetProperty(cx, options, "width", &width);
-    if (JSVAL_IS_VOID(width) || JSVAL_IS_UNDEFINED(width)) {
+    if (JSVAL_IS_VOID(width) || JSVAL_IS_NULL(width)) {
         JS_GetProperty(cx, options, "Width", &width);
     }
 
     JS_GetProperty(cx, options, "height", &height);
-    if (JSVAL_IS_VOID(height) || JSVAL_IS_UNDEFINED(height)) {
+    if (JSVAL_IS_VOID(height) || JSVAL_IS_NULL(height)) {
         JS_GetProperty(cx, options, "Height", &height);
     }
 
@@ -265,12 +265,12 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         jsval x, y;
 
         JS_GetProperty(cx, options, "x", &x);
-        if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+        if (JSVAL_IS_VOID(x) || JSVAL_IS_NULL(x)) {
             JS_GetProperty(cx, options, "X", &x);
         }
 
         JS_GetProperty(cx, options, "y", &y);
-        if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+        if (JSVAL_IS_VOID(y) || JSVAL_IS_NULL(y)) {
             JS_GetProperty(cx, options, "Y", &y);
         }
 
@@ -318,12 +318,12 @@ Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
         jsval x, y;
 
         JS_GetProperty(cx, options, "x", &x);
-        if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+        if (JSVAL_IS_VOID(x) || JSVAL_IS_NULL(x)) {
             JS_GetProperty(cx, options, "X", &x);
         }
 
         JS_GetProperty(cx, options, "y", &y);
-        if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+        if (JSVAL_IS_VOID(y) || JSVAL_IS_NULL(y)) {
             JS_GetProperty(cx, options, "Y", &y);
         }
 
@@ -357,12 +357,12 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         jsval x, y;
 
         JS_GetProperty(cx, options, "x", &x);
-        if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+        if (JSVAL_IS_VOID(x) || JSVAL_IS_NULL(x)) {
             JS_GetProperty(cx, options, "X", &x);
         }
 
         JS_GetProperty(cx, options, "y", &y);
-        if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+        if (JSVAL_IS_VOID(y) || JSVAL_IS_NULL(y)) {
             JS_GetProperty(cx, options, "Y", &y);
         }
 

@@ -146,12 +146,12 @@ Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
     jsval x, y;
 
     JS_GetProperty(cx, options, "x", &x);
-    if (JSVAL_IS_VOID(x) || JSVAL_IS_UNDEFINED(x)) {
+    if (JSVAL_IS_VOID(x) || JSVAL_IS_NULL(x)) {
         JS_GetProperty(cx, options, "X", &x);
     }
 
     JS_GetProperty(cx, options, "y", &y);
-    if (JSVAL_IS_VOID(y) || JSVAL_IS_UNDEFINED(y)) {
+    if (JSVAL_IS_VOID(y) || JSVAL_IS_NULL(y)) {
         JS_GetProperty(cx, options, "Y", &y);
     }
 

@@ -4,8 +4,8 @@ CC         = gcc
 CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
-CFLAGS     = -Os -DXP_UNIX -DJS_THREADSAFE -D__LIB_VERSION__="\"${VERSION}\"" -I/usr/include/js -I./src
-LDFLAGS    = -ljs -llulzjs
+CFLAGS     = -Os -DXP_UNIX -DJS_THREADSAFE -D__LIB_VERSION__="\"${VERSION}\"" $(shell js-config --cflags) -I./src
+LDFLAGS    = $(shell js-config --libs) -llulzjs
 
 ifdef DEBUG
 CFLAGS += -g -Wall
