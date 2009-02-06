@@ -63,7 +63,7 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
         return JS_FALSE;
     }
 
-    ScreenInformation* data = JS_malloc(cx, sizeof(ScreenInformation));
+    ScreenInformation* data = new ScreenInformation;
     JS_SetPrivate(cx, object, data);
 
     signalCx     = cx;
@@ -83,18 +83,16 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
         use_default_colors();
     }
 
-    jsval property;
-    JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &property);
-    JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "Window", &property);
-    JSClass*  class  = JS_GET_CLASS(cx, JSVAL_TO_OBJECT(property));
+    jsval property = JS_EVAL(cx, "ncurses.Window");
     JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "prototype", &property);
     JSObject* proto  = JSVAL_TO_OBJECT(property);
 
-    JSObject* Window = JS_NewObject(cx, class, proto, NULL); 
+    JSObject* Window = JS_NewObject(cx, &Window_class, proto, NULL); 
     property = OBJECT_TO_JSVAL(Window);
     JS_SetProperty(cx, object, "__window", &property);
     JS_SetPrivate(cx, Window, stdscr);
-    JS_DefineProperty(cx, Window, "border", JSVAL_FALSE, NULL, NULL, JSPROP_READONLY);
+    property = JSVAL_FALSE;
+    JS_SetProperty(cx, Window, "border", &property);
 
     if (argc > 0) {
         JS_ValueToObject(cx, argv[0], &options);
@@ -168,7 +166,7 @@ Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 void
 Screen_finalize (JSContext* cx, JSObject* object)
 {
-    ScreenInformation* data = JS_GetPrivate(cx, object);
+    ScreenInformation* data = (ScreenInformation*) JS_GetPrivate(cx, object);
 
     if (data) {
         switch (data->buffering) {
@@ -187,7 +185,7 @@ Screen_finalize (JSContext* cx, JSObject* object)
         curs_set(1);
         endwin();
 
-        JS_free(cx, data);
+        delete data;
     }
 }
 

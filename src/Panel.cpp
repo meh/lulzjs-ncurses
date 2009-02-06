@@ -18,9 +18,6 @@
 
 #include "Panel.h"
 
-extern JSObject** panels;
-extern int        panelsSize;
-
 JSBool exec (JSContext* cx) { return Panel_initialize(cx); }
 
 JSBool
@@ -54,12 +51,12 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &property);
     JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "Window",&property);
 
-    JSObject* class = JSVAL_TO_OBJECT(property);
-    JS_GetProperty(cx, class, "prototype", &property);
+    JSObject* klass = JSVAL_TO_OBJECT(property);
+    JS_GetProperty(cx, klass, "prototype", &property);
     JSObject* proto = JSVAL_TO_OBJECT(property);
     
-    JSObject* Window = JS_ConstructObject(cx, JS_GET_CLASS(cx, class), proto, NULL);
-    JS_CallFunctionValue(cx, Window, OBJECT_TO_JSVAL(class), argc, argv, &property);
+    JSObject* Window = JS_ConstructObject(cx, JS_GET_CLASS(cx, klass), proto, NULL);
+    JS_CallFunctionValue(cx, Window, OBJECT_TO_JSVAL(klass), argc, argv, &property);
     
     property = OBJECT_TO_JSVAL(Window);
     JS_SetProperty(cx, object, "__window", &property);
@@ -69,8 +66,7 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
     
     update_panels();
 
-    panels = realloc(panels, (++panelsSize)*sizeof(JSObject*));
-    panels[panelsSize-1] = object;
+    panels[panel] = object;
     
     JS_DefineProperty(
         cx, object, "below", JSVAL_NULL,
@@ -89,21 +85,10 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
 void
 Panel_finalize (JSContext* cx, JSObject* object)
 {
-    PANEL* panel = JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
 
     if (panel) {
-        // Find the object being finalized and remove it from the list
-        int i;
-        for (i = 0; i < panelsSize; i++) {
-            if (object == panels[i]) {
-                break;
-            }
-        }
-        for (i++; i < panelsSize; i++) {
-            panels[i-1] = panels[i];
-        }
-        panels = realloc(panels, (--panelsSize)*sizeof(JSObject*));
-
+        panels.erase(panel);
         del_panel(panel);
     }
 }
@@ -111,7 +96,7 @@ Panel_finalize (JSContext* cx, JSObject* object)
 JSBool
 Panel_hide (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    PANEL* panel = JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     hide_panel(panel);
 
     jsval val = JSVAL_TRUE;
@@ -123,7 +108,7 @@ Panel_hide (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
 JSBool
 Panel_show (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    PANEL* panel = JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     show_panel(panel);
 
     jsval val = JSVAL_FALSE;
@@ -170,7 +155,7 @@ Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
         JS_GetProperty(cx, JSVAL_TO_OBJECT(y), "Y", &y);
     }
 
-    PANEL* panel = JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     move_panel(panel, JSVAL_TO_INT(y), JSVAL_TO_INT(x));
     refresh();
     update_panels();
@@ -182,7 +167,7 @@ Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
 JSBool
 Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    PANEL* panel = JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     top_panel(panel);
 
     return JS_TRUE;
@@ -191,7 +176,7 @@ Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 JSBool
 Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    PANEL* panel = JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     bottom_panel(panel);
 
     return JS_TRUE;
@@ -200,18 +185,10 @@ Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 JSBool
 Panel_above (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    PANEL* panel = JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     PANEL* above = panel_above(panel);
 
-    int i;
-    for (i = 0; i < panelsSize; i++) {
-        PANEL* check = JS_GetPrivate(cx, panels[i]);
-
-        if (check == above) {
-            *rval = OBJECT_TO_JSVAL(panels[i]);
-            break;
-        }
-    }
+    *rval = OBJECT_TO_JSVAL(panels[above]);
 
     return JS_TRUE;
 }
@@ -219,18 +196,10 @@ Panel_above (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rv
 JSBool
 Panel_below (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    PANEL* panel = JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     PANEL* below = panel_below(panel);
 
-    int i;
-    for (i = 0; i < panelsSize; i++) {
-        PANEL* check = JS_GetPrivate(cx, panels[i]);
-
-        if (check == below) {
-            *rval = OBJECT_TO_JSVAL(panels[i]);
-            break;
-        }
-    }
+    *rval = OBJECT_TO_JSVAL(panels[below]);
 
     return JS_TRUE;
 }

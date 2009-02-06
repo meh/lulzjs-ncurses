@@ -17,6 +17,7 @@
 ****************************************************************************/
 
 #include "Window.h"
+#include <assert.h>
 
 void __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply);
 void __Window_updatePosition (JSContext* cx, JSObject* object);
@@ -33,10 +34,18 @@ Window_initialize (JSContext* cx)
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
+    printf("%s - ", Window_class.name);
     JSObject* object = JS_InitClass(
         cx, parent, NULL, &Window_class,
         Window_constructor, 1, NULL, Window_methods, NULL, NULL
     );
+    printf("%s\n", Window_class.name);
+
+    assert(object != NULL);
+    JSClass* lol = JS_GET_CLASS(cx, object);
+    assert(lol == &Window_class);
+    printf("%s %d\n\n", lol->name, lol->flags);
+    getchar();
 
     if (object) {
         return JS_TRUE;
@@ -107,7 +116,7 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         } break;
 
         case 2: {
-            WINDOW* parentWin = JS_GetPrivate(cx, parent);
+            WINDOW* parentWin = (WINDOW*) JS_GetPrivate(cx, parent);
             win = subwin(parentWin,
                 JSVAL_TO_INT(border ? height+3 : height), JSVAL_TO_INT(border ? width+3 : width),
                 JSVAL_TO_INT(y), JSVAL_TO_INT(x)
@@ -142,7 +151,7 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
 void
 Window_finalize (JSContext* cx, JSObject* object)
 {
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
     if (win && win != stdscr) {
         delwin(win);
@@ -152,7 +161,7 @@ Window_finalize (JSContext* cx, JSObject* object)
 JSBool
 Window_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
     wrefresh(win);
     return JS_TRUE;
@@ -224,7 +233,7 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         JS_GetProperty(cx, JSVAL_TO_OBJECT(height), "Height", &height);
     }
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
     jsval border; JS_GetProperty(cx, object, "border", &border);
     if (JSVAL_TO_BOOLEAN(border)) {
@@ -252,7 +261,7 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         return JS_FALSE;
     }
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
     jsint ch; JS_ValueToInt32(cx, argv[0], &ch);
 
@@ -302,7 +311,7 @@ Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 {
     JSObject* options;
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
     if (argc == 0) {
         *rval = INT_TO_JSVAL(wgetch(win));
@@ -346,7 +355,7 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         return JS_FALSE;
     }
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
     if (argc == 1){
         wprintw(win, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
@@ -388,7 +397,7 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
 {
     JSObject* options;
 
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
     jsval parent;
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &parent);
@@ -472,7 +481,7 @@ __Window_echofy (jsval jsEcho, JSBool echoing, jsint cursor, JSBool start)
 JSString*
 __Window_readLine (JSContext* cx, WINDOW* win, JSBool moveFirst, jsval x, jsval y)
 {
-    char* string  = JS_malloc(cx, 512*sizeof(char));
+    char* string  = (char*) malloc(512*sizeof(char));
     size_t length = 0;
 
     string[0] = (moveFirst
@@ -481,14 +490,14 @@ __Window_readLine (JSContext* cx, WINDOW* win, JSBool moveFirst, jsval x, jsval 
     
     while (string[(++length)-1] != '\n') {
         if ((length+1) % 512) {
-            string = JS_realloc(cx, string, (length+512+1)*sizeof(char));
+            string = (char*) realloc(string, (length+512+1)*sizeof(char));
         }
     
         string[length] = (char) wgetch(win);
     }
 
     string[length-1] = '\0';
-    string = JS_realloc(cx, string, length*sizeof(char));
+    string = (char*) realloc(string, length*sizeof(char));
 
     return JS_NewString(cx, string, strlen(string));
 }
@@ -549,7 +558,7 @@ void
 __Window_updateSize (JSContext* cx, JSObject* object)
 {
     int height, width;
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
     getmaxyx(win, height, width);
 
     jsval property;
@@ -568,7 +577,7 @@ void
 __Window_updatePosition (JSContext* cx, JSObject* object)
 {
     int y, x;
-    WINDOW* win = JS_GetPrivate(cx, object);
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
     getbegyx(win, y, x);
 
     jsval jsPosition; JS_GetProperty(cx, object, "Position", &jsPosition);

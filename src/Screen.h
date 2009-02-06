@@ -20,7 +20,7 @@
 #define _LULZJS_NCURSES_SCREEN_H
 
 #include "common.h"
-#include "Window_private.h"
+#include "Window.h"
 #include <signal.h>
 
 extern JSBool exec (JSContext* cx);

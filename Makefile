@@ -24,9 +24,9 @@ all: lib
 
 lib: $(LIB)
 
-$(LIB) : $(LIB:.o=.c)
-	${CC} ${LIB_CFLAGS} -fPIC -c $*.c -o $*.lo
-	${CC} ${LIB_LDFLAGS} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
+$(LIB) : $(LIB:.o=.cpp)
+	${CXX} ${LIB_CFLAGS} -fPIC -c $*.cpp -o $*.lo
+	${CXX} ${LIB_LDFLAGS} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
 lib_install: lib
 	mkdir -p ${LJS_LIBDIR}/ncurses

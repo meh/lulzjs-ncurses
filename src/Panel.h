@@ -20,10 +20,9 @@
 #define _LULZJS_NCURSES_PANEL_H
 
 #include "common.h"
-#include "Window_private.h"
+#include <map>
 
-JSObject** panels     = NULL;
-int        panelsSize = 0;
+std::map <PANEL*, JSObject*> panels;
 
 extern JSBool exec (JSContext* cx);
 extern JSBool Panel_initialize (JSContext* cx);
