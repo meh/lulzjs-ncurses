@@ -43,8 +43,8 @@ JSBool Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
 JSBool Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 JSBool Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-JSBool Panel_above (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-JSBool Panel_below (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_above (JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSBool Panel_below (JSContext *cx, JSObject *obj, jsval id, jsval *vp);
 
 JSBool Panel_static_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 

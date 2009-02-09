@@ -76,13 +76,11 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
     
     JS_DefineProperty(
         cx, object, "below", JSVAL_NULL,
-        (JSPropertyOp) JS_GetFunctionObject(JS_NewFunction(cx, Panel_below, 0, 0, NULL, NULL)),
-        NULL, JSPROP_GETTER|JSPROP_READONLY
+        Panel_below, NULL, JSPROP_GETTER|JSPROP_READONLY
     );
     JS_DefineProperty(
         cx, object, "above", JSVAL_NULL,
-        (JSPropertyOp) JS_GetFunctionObject(JS_NewFunction(cx, Panel_above, 0, 0, NULL, NULL)),
-        NULL, JSPROP_GETTER|JSPROP_READONLY
+        Panel_above, NULL, JSPROP_GETTER|JSPROP_READONLY
     );
 
     JS_LeaveLocalRootScope(cx);
@@ -210,23 +208,23 @@ Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 }
 
 JSBool
-Panel_above (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+Panel_above (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, obj);
     PANEL* above = panel_above(panel);
 
-    *rval = OBJECT_TO_JSVAL(panels[above]);
+    *vp = OBJECT_TO_JSVAL(panels[above]);
 
     return JS_TRUE;
 }
 
 JSBool
-Panel_below (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+Panel_below (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-    PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
+    PANEL* panel = (PANEL*) JS_GetPrivate(cx, obj);
     PANEL* below = panel_below(panel);
 
-    *rval = OBJECT_TO_JSVAL(panels[below]);
+    *vp = OBJECT_TO_JSVAL(panels[below]);
 
     return JS_TRUE;
 }
