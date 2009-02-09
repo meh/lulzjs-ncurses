@@ -24,11 +24,11 @@
 
 std::map <PANEL*, JSObject*> panels;
 
-extern JSBool exec (JSContext* cx);
-extern JSBool Panel_initialize (JSContext* cx);
+extern "C" JSBool exec (JSContext* cx);
+JSBool Panel_initialize (JSContext* cx);
 
-extern JSBool Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern void   Panel_finalize (JSContext* cx, JSObject* object); 
+JSBool Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+void   Panel_finalize (JSContext* cx, JSObject* object); 
 
 static JSClass Panel_class = {
     "Panel", JSCLASS_HAS_PRIVATE,
@@ -36,17 +36,17 @@ static JSClass Panel_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Panel_finalize
 };
 
-extern JSBool Panel_hide (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Panel_show (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_hide (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_show (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_toTop (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_toBottom (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Panel_above (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Panel_below (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_above (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_below (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Panel_static_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Panel_static_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec Panel_methods[] = {
     {"hide", Panel_hide, 0, 0, 0},

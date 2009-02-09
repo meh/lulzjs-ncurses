@@ -23,11 +23,11 @@
 #include "Window.h"
 #include <signal.h>
 
-extern JSBool exec (JSContext* cx);
-extern JSBool Screen_initialize (JSContext* cx);
+extern "C" JSBool exec (JSContext* cx);
+JSBool Screen_initialize (JSContext* cx);
 
-extern JSBool Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern void   Screen_finalize (JSContext* cx, JSObject* object); 
+JSBool Screen_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+void   Screen_finalize (JSContext* cx, JSObject* object); 
 
 static JSClass Screen_class = {
     "Screen", JSCLASS_HAS_PRIVATE,
@@ -37,9 +37,9 @@ static JSClass Screen_class = {
 
 #include "Screen_private.h"
 
-extern JSBool Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Screen_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Screen_init (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Screen_update (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Screen_cursorMode (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec Screen_methods[] = {
     {"init",       Screen_init,       0, 0, 0},

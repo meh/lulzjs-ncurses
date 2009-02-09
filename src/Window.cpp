@@ -30,24 +30,21 @@ JSBool exec (JSContext* cx) { return Window_initialize(cx); }
 JSBool
 Window_initialize (JSContext* cx)
 {
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
     jsval jsParent;
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
 
-    printf("%s - ", Window_class.name);
     JSObject* object = JS_InitClass(
         cx, parent, NULL, &Window_class,
         Window_constructor, 1, NULL, Window_methods, NULL, NULL
     );
-    printf("%s\n", Window_class.name);
-
-    assert(object != NULL);
-    JSClass* lol = JS_GET_CLASS(cx, object);
-    assert(lol == &Window_class);
-    printf("%s %d\n\n", lol->name, lol->flags);
-    getchar();
 
     if (object) {
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
         return JS_TRUE;
     }
 
@@ -62,11 +59,17 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     jsval x, y, width, height;
     jsint offset = 0;
 
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
     if (argc == 2) {
         JS_ValueToObject(cx, argv[0], &parent);
 
         if (!JS_OBJECT_IS(cx, OBJECT_TO_JSVAL(parent), "ncurses.Window")) {
             JS_ReportError(cx, "You have to pass a Window object.");
+
+            JS_LeaveLocalRootScope(cx);
+            JS_EndRequest(cx);
             return JS_FALSE;
         }
 
@@ -145,6 +148,9 @@ Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
 
     wrefresh(win);
 
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+
     return JS_TRUE;
 }
 
@@ -177,6 +183,8 @@ Window_redraw (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 
     WINDOW* win = ((WindowInformation*)JS_GetPrivate(cx, object))->win;
 
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
     switch (argc) {
         case 0: {
             wrefresh(win);
@@ -189,6 +197,8 @@ Window_redraw (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
             wredrawln(win, beg, num);
         } break;
     }
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 
     return JS_TRUE;
 
@@ -203,6 +213,9 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
     JS_ValueToObject(cx, argv[0], &options);
 
@@ -220,6 +233,9 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 
     if (!JSVAL_IS_INT(width) && !JSVAL_IS_INT(height)) {
         JS_ReportError(cx, "An option isn't an int.");
+
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
         return JS_FALSE;
     }
 
@@ -249,8 +265,9 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 
     __Window_updateSize(cx, object);
 
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
     return JS_TRUE;
-
 }
 
 JSBool
@@ -260,6 +277,9 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         JS_ReportError(cx, "Not enough parameters.");
         return JS_FALSE;
     }
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
     WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
@@ -303,6 +323,9 @@ Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
         __Window_options(cx, win, options, JS_FALSE);
     }
 
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+
     return JS_TRUE;
 }
 
@@ -313,6 +336,9 @@ Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 
     WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
 
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
     if (argc == 0) {
         *rval = INT_TO_JSVAL(wgetch(win));
     }
@@ -321,6 +347,9 @@ Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 
         if (!options) {
             JS_ReportError(cx, "Options isn't a valid object.");
+
+            JS_LeaveLocalRootScope(cx);
+            JS_EndRequest(cx);
             return JS_FALSE;
         }
 
@@ -338,11 +367,17 @@ Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval*
 
         if (!JSVAL_IS_INT(x) || !JSVAL_IS_INT(y)) {
             JS_ReportError(cx, "An option is missing or isn't an int.");
+
+            JS_LeaveLocalRootScope(cx);
+            JS_EndRequest(cx);
             return JS_FALSE;
         }
 
         *rval = INT_TO_JSVAL(mvwgetch(win, JSVAL_TO_INT(y), JSVAL_TO_INT(x)));
     }
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 
     return JS_TRUE;
 }
@@ -356,6 +391,9 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
     }
 
     WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
     if (argc == 1){
         wprintw(win, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
@@ -389,6 +427,9 @@ Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, js
         __Window_options(cx, win, options, JS_FALSE);
     }
 
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+
     return JS_TRUE;
 }
 
@@ -398,6 +439,9 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
     JSObject* options;
 
     WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
     jsval parent;
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &parent);
@@ -426,6 +470,9 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
 
         if (!options) {
             JS_ReportError(cx, "Options isn't a valid object.");
+
+            JS_LeaveLocalRootScope(cx);
+            JS_EndRequest(cx);
             return JS_FALSE;
         }
 
@@ -445,6 +492,9 @@ Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsva
             __Window_echofy(jsEcho, windowEchoing, windowCursor, JS_FALSE);
         }
     }
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 
     return JS_TRUE;
 }
@@ -481,30 +531,40 @@ __Window_echofy (jsval jsEcho, JSBool echoing, jsint cursor, JSBool start)
 JSString*
 __Window_readLine (JSContext* cx, WINDOW* win, JSBool moveFirst, jsval x, jsval y)
 {
-    char* string  = (char*) malloc(512*sizeof(char));
+    char* string  = (char*) JS_malloc(cx, 16*sizeof(char));
     size_t length = 0;
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
     string[0] = (moveFirst
         ? mvwgetch(win, JSVAL_TO_INT(y), JSVAL_TO_INT(x))
         : wgetch(win));
     
     while (string[(++length)-1] != '\n') {
-        if ((length+1) % 512) {
-            string = (char*) realloc(string, (length+512+1)*sizeof(char));
+        if ((length+1) % 16) {
+            string = (char*) JS_realloc(cx, string, (length+16+1)*sizeof(char));
         }
     
         string[length] = (char) wgetch(win);
     }
 
     string[length-1] = '\0';
-    string = (char*) realloc(string, length*sizeof(char));
+    string = (char*) JS_realloc(cx, string, length*sizeof(char));
 
-    return JS_NewString(cx, string, strlen(string));
+    JSString* jsString = JS_NewString(cx, string, strlen(string));
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+    return jsString;
 }
 
 void
 __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply)
 {
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
     jsval jsAttrs; JS_GetProperty(cx, options, "at", &jsAttrs);
     if (!JSVAL_IS_INT(jsAttrs)) {
         JS_GetProperty(cx, options, "attribute", &jsAttrs);
@@ -537,6 +597,8 @@ __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply)
     short bg = JSVAL_IS_INT(jsBackground) ? JSVAL_TO_INT(jsBackground) : -1;
 
     if (fg == -1 && bg == -1) {
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
         return;
     }
 
@@ -552,6 +614,9 @@ __Window_options (JSContext* cx, WINDOW* win, JSObject* options, JSBool apply)
     else {
         wattroff(win, COLOR_PAIR(c_pair));
     }
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 }
 
 void
@@ -560,6 +625,9 @@ __Window_updateSize (JSContext* cx, JSObject* object)
     int height, width;
     WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
     getmaxyx(win, height, width);
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
     jsval property;
     JS_GetProperty(cx, object, "Size", &property);
@@ -571,6 +639,9 @@ __Window_updateSize (JSContext* cx, JSObject* object)
     JS_SetProperty(cx, Size, "Height", &property);
     property = INT_TO_JSVAL(border ? width-2 : width);
     JS_SetProperty(cx, Size, "Width", &property);
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 }
 
 void
@@ -580,6 +651,9 @@ __Window_updatePosition (JSContext* cx, JSObject* object)
     WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
     getbegyx(win, y, x);
 
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
     jsval jsPosition; JS_GetProperty(cx, object, "Position", &jsPosition);
     JSObject* Position = JSVAL_TO_OBJECT(jsPosition);
 
@@ -588,5 +662,8 @@ __Window_updatePosition (JSContext* cx, JSObject* object)
     JS_SetProperty(cx, Position, "Y", &property);
     property = INT_TO_JSVAL(x);
     JS_SetProperty(cx, Position, "X", &property);
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 }
 

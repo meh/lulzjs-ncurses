@@ -21,8 +21,8 @@
 
 #include "common.h"
 
-extern JSBool exec (JSContext* cx);
-extern JSBool ncurses_initialize (JSContext* cx);
+extern "C" JSBool exec (JSContext* cx);
+JSBool ncurses_initialize (JSContext* cx);
 
 static JSClass ncurses_class = {
     "ncurses", 0,
@@ -30,7 +30,7 @@ static JSClass ncurses_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub
 };
 
-extern JSBool ncurses_KEY_F (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool ncurses_KEY_F (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec ncurses_methods[] = {
     {NULL}

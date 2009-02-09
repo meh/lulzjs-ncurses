@@ -23,6 +23,9 @@ JSBool exec (JSContext* cx) { return Panel_initialize(cx); }
 JSBool
 Panel_initialize (JSContext* cx)
 {
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
     jsval jsParent;
     JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &jsParent);
     JSObject* parent = JSVAL_TO_OBJECT(jsParent);
@@ -33,6 +36,8 @@ Panel_initialize (JSContext* cx)
     );
 
     if (object) {
+        JS_LeaveLocalRootScope(cx);
+        JS_EndRequest(cx);
         return JS_TRUE;
     }
 
@@ -47,11 +52,12 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
         return JS_FALSE;
     }
 
-    jsval property;
-    JS_GetProperty(cx, JS_GetGlobalObject(cx), "ncurses", &property);
-    JS_GetProperty(cx, JSVAL_TO_OBJECT(property), "Window",&property);
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
+    jsval property = JS_EVAL(cx, "ncurses.Window");
     JSObject* klass = JSVAL_TO_OBJECT(property);
+
     JS_GetProperty(cx, klass, "prototype", &property);
     JSObject* proto = JSVAL_TO_OBJECT(property);
     
@@ -79,6 +85,9 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
         NULL, JSPROP_GETTER|JSPROP_READONLY
     );
 
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
+
     return JS_TRUE;
 }
 
@@ -99,8 +108,14 @@ Panel_hide (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
     PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     hide_panel(panel);
 
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
     jsval val = JSVAL_TRUE;
     JS_SetProperty(cx, object, "hidden", &val);
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 
     return JS_TRUE;
 }
@@ -110,6 +125,9 @@ Panel_show (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
 {
     PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     show_panel(panel);
+
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
 
     jsval val = JSVAL_FALSE;
     JS_SetProperty(cx, object, "hidden", &val);
@@ -127,6 +145,9 @@ Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
         return JS_FALSE;
     }
 
+    JS_BeginRequest(cx);
+    JS_EnterLocalRootScope(cx);
+
     JS_ValueToObject(cx, argv[0], &options);
     jsval x, y;
 
@@ -142,6 +163,9 @@ Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
 
     if (!JSVAL_IS_INT(x) && !JSVAL_IS_INT(y)) {
         JS_ReportError(cx, "An option isn't an int.");
+
+        JS_BeginRequest(cx);
+        JS_EnterLocalRootScope(cx);
         return JS_FALSE;
     }
 
@@ -154,6 +178,9 @@ Panel_move (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rva
         JS_GetProperty(cx, object, "Position", &y);
         JS_GetProperty(cx, JSVAL_TO_OBJECT(y), "Y", &y);
     }
+
+    JS_LeaveLocalRootScope(cx);
+    JS_EndRequest(cx);
 
     PANEL* panel = (PANEL*) JS_GetPrivate(cx, object);
     move_panel(panel, JSVAL_TO_INT(y), JSVAL_TO_INT(x));

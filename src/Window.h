@@ -21,11 +21,11 @@
 
 #include "common.h"
 
-extern JSBool exec (JSContext* cx);
-extern JSBool Window_initialize (JSContext* cx);
+extern "C" JSBool exec (JSContext* cx);
+JSBool Window_initialize (JSContext* cx);
 
-extern JSBool Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern void   Window_finalize (JSContext* cx, JSObject* object); 
+JSBool Window_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+void   Window_finalize (JSContext* cx, JSObject* object); 
 
 static JSClass Window_class = {
     "Window", JSCLASS_HAS_PRIVATE,
@@ -35,15 +35,15 @@ static JSClass Window_class = {
 
 #include "Window_private.h"
 
-extern JSBool Window_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Window_redraw (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_redraw (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
-extern JSBool Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
-extern JSBool Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_printString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_getString (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 static JSFunctionSpec Window_methods[] = {
     {"refresh", Window_refresh, 0, 0, 0},
