@@ -271,6 +271,24 @@ Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* 
 }
 
 JSBool
+Window_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
+
+    wclear(win);
+    return JS_TRUE;
+}
+
+JSBool
+Window_erase (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
+{
+    WINDOW* win = (WINDOW*) JS_GetPrivate(cx, object);
+
+    werase(win);
+    return JS_TRUE;
+}
+
+JSBool
 Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval)
 {
     if (argc < 1) {

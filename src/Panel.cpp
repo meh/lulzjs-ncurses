@@ -56,22 +56,31 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
     JS_EnterLocalRootScope(cx);
 
     jsval property = JS_EVAL(cx, "ncurses.Window");
-    JSObject* klass = JSVAL_TO_OBJECT(property);
+    JSObject* obj  = JSVAL_TO_OBJECT(property);
 
-    JS_GetProperty(cx, klass, "prototype", &property);
-    JSObject* proto = JSVAL_TO_OBJECT(property);
+    JSClass* klass   = JS_GET_CLASS(cx, obj);
+    JSObject* Window = JS_NewObject(cx, klass, NULL, NULL);
+
+    JS_GetProperty(cx, obj, "prototype", &property);
+
+    if (!JSVAL_IS_VOID(property)) {
+        JS_SetPrototype(cx, Window, JSVAL_TO_OBJECT(property));
+    }
     
-    JSObject* Window = JS_ConstructObject(cx, JS_GET_CLASS(cx, klass), proto, NULL);
-    JS_CallFunctionValue(cx, Window, OBJECT_TO_JSVAL(klass), argc, argv, &property);
-    
-    property = OBJECT_TO_JSVAL(Window);
-    JS_SetProperty(cx, object, "__window", &property);
+    JS_CallFunctionValue(cx, Window, OBJECT_TO_JSVAL(obj), argc, argv, &property);
+
+    if (!JSVAL_IS_VOID(property)) {
+        JS_SetProperty(cx, object, "__window", &property);
+    }
+    else {
+        property = OBJECT_TO_JSVAL(Window);
+        JS_SetProperty(cx, object, "__window", &property);
+    }
 
     PANEL* panel = new_panel((WINDOW*)JS_GetPrivate(cx, Window));
     JS_SetPrivate(cx, object, panel);
     
     update_panels();
-
     panels[panel] = object;
     
     JS_DefineProperty(

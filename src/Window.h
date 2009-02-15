@@ -38,6 +38,8 @@ static JSClass Window_class = {
 JSBool Window_refresh (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 JSBool Window_redraw (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 JSBool Window_resize (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_clear (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
+JSBool Window_erase (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 
 JSBool Window_getChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
 JSBool Window_printChar (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsval* rval);
@@ -49,6 +51,8 @@ static JSFunctionSpec Window_methods[] = {
     {"refresh", Window_refresh, 0, 0, 0},
     {"redraw",  Window_redraw,  0, 0, 0},
     {"resize",  Window_resize,  0, 0, 0},
+    {"clear",   Window_clear,   0, 0, 0},
+    {"erase",   Window_erase,   0, 0, 0},
 
     {"printChar", Window_printChar, 0, 0, 0},
     {"getChar",   Window_getChar,   0, 0, 0},

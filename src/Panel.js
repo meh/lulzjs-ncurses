@@ -21,6 +21,14 @@ Object.extend(ncurses.Panel.prototype, {
         this.__window.refresh();
     },
 
+    clear: function () {
+        this.__window.clear();
+    },
+
+    erase: function () {
+        this.__window.erase();
+    },
+
     resize: function (obj) {
         this.__window.resize(obj);
         ncurses.Panel.update();
