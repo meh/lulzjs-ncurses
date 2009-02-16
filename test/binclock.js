@@ -1,9 +1,8 @@
 #! /usr/bin/env ljs
 require("ncurses");
 
-show = true;
-
 var screen = ncurses.Screen.init({buffering: ncurses.Buffering.CBreak});
+screen.show = true;
 
 screen.showClock = function ()
 {
@@ -53,9 +52,9 @@ screen.showClock = function ()
         }
     }
 
-    var hours   = now.getHours().toPaddedString(2).split('');
-    var minutes = now.getMinutes().toPaddedString(2).split('');
-    var seconds = now.getSeconds().toPaddedString(2).split('');
+    var hours   = now.getHours().toPaddedString(2).toArray();
+    var minutes = now.getMinutes().toPaddedString(2).toArray();
+    var seconds = now.getSeconds().toPaddedString(2).toArray();
 
     this.printString(hours[0]+" "+hours[1], {x: 12, y: 17, fg: ncurses.Colors.Blue});
     this.printString(":", {x: 18, y: 17, fg: ncurses.Colors.Blue});
@@ -77,6 +76,10 @@ screen.createContainer = function ()
     this.printString("2", {x: 8, y: 7, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
     this.printString("1", {x: 8, y: 8, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
 
+    this.printString("B", {x: 40, y: 5, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+    this.printString("C", {x: 40, y: 6, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+    this.printString("D", {x: 40, y: 7, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+
     this.printString(" ".times(31), {x: 9, y: 4, bg: ncurses.Colors.Red});
     for each (let i in range(5, 9)) {
         this.printString(" ", {x: 9,  y: i, bg: ncurses.Colors.Red});
@@ -90,6 +93,13 @@ screen.createContainer = function ()
     this.printString( "4", {x: 8, y: 13, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
     this.printString( "2", {x: 8, y: 14, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
     this.printString( "1", {x: 8, y: 15, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+
+    this.printString("B", {x: 40, y: 10, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+    this.printString("I", {x: 40, y: 11, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+    this.printString("N", {x: 40, y: 12, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+    this.printString("A", {x: 40, y: 13, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+    this.printString("R", {x: 40, y: 14, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+    this.printString("Y", {x: 40, y: 15, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
 
     for each (let i in range(10, 15)) {
         this.printString(" ", {x: 9,  y: i, bg: ncurses.Colors.Red});
@@ -107,12 +117,12 @@ screen.onResize = function () {
     if (this.Size.Width < 40 || this.Size.Height < 23) {
         this.erase();
         this.printString("LOL FAG", {fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
-        show = false;
+        this.show = false;
     }
     else {
         this.erase();
         showClock();
-        show = true;
+        this.show = true;
     }
     this.refresh();
 };
@@ -124,29 +134,29 @@ while (true) {
     now = new Date;
 
     binary = {
-        seconds: now.getSeconds().toPaddedString(6, 2).split(''),
-        minutes: now.getMinutes().toPaddedString(6, 2).split(''),
-        hours  : now.getHours().toPaddedString(5, 2).split('')
+        seconds: now.getSeconds().toPaddedString(6, 2).toArray(),
+        minutes: now.getMinutes().toPaddedString(6, 2).toArray(),
+        hours  : now.getHours().toPaddedString(5, 2).toArray()
     };
 
     bcd = {
         seconds: {
-            d: Math.floor(now.getSeconds()/10).toPaddedString(3, 2).split(''),
-            u: (now.getSeconds()%10).toPaddedString(4, 2).split('')
+            d: Math.floor(now.getSeconds()/10).toPaddedString(3, 2).toArray(),
+            u: (now.getSeconds()%10).toPaddedString(4, 2).toArray()
         },
 
         minutes: {
-            d: Math.floor(now.getMinutes()/10).toPaddedString(3, 2).split(''),
-            u: (now.getMinutes()%10).toPaddedString(4, 2).split('')
+            d: Math.floor(now.getMinutes()/10).toPaddedString(3, 2).toArray(),
+            u: (now.getMinutes()%10).toPaddedString(4, 2).toArray()
         },
 
         hours: {
-            d: Math.floor(now.getHours()/10).toPaddedString(2, 2).split(''),
-            u: (now.getHours()%10).toPaddedString(4, 2).split('')
+            d: Math.floor(now.getHours()/10).toPaddedString(2, 2).toArray(),
+            u: (now.getHours()%10).toPaddedString(4, 2).toArray()
         }
     };
 
-    if (show) {
+    if (screen.show) {
         screen.showClock();
     }
 
