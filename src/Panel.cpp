@@ -58,24 +58,9 @@ Panel_constructor (JSContext* cx, JSObject* object, uintN argc, jsval* argv, jsv
     jsval property = JS_EVAL(cx, "ncurses.Window");
     JSObject* obj  = JSVAL_TO_OBJECT(property);
 
-    JSClass* klass   = JS_GET_CLASS(cx, obj);
-    JSObject* Window = JS_NewObject(cx, klass, NULL, NULL);
-
-    JS_GetProperty(cx, obj, "prototype", &property);
-
-    if (!JSVAL_IS_VOID(property)) {
-        JS_SetPrototype(cx, Window, JSVAL_TO_OBJECT(property));
-    }
-    
-    JS_CallFunctionValue(cx, Window, OBJECT_TO_JSVAL(obj), argc, argv, &property);
-
-    if (!JSVAL_IS_VOID(property)) {
-        JS_SetProperty(cx, object, "__window", &property);
-    }
-    else {
-        property = OBJECT_TO_JSVAL(Window);
-        JS_SetProperty(cx, object, "__window", &property);
-    }
+    JSObject* Window = JS_New(cx, obj, argc, argv);
+    property         = OBJECT_TO_JSVAL(Window);
+    JS_SetProperty(cx, object, "__window", property);
 
     PANEL* panel = new_panel((WINDOW*)JS_GetPrivate(cx, Window));
     JS_SetPrivate(cx, object, panel);

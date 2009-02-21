@@ -5,7 +5,7 @@ CXX        = g++
 BINDIR     = /usr/bin
 LJS_LIBDIR = /usr/lib/lulzjs
 CFLAGS     = -Os -DXP_UNIX -DJS_THREADSAFE -D__LIB_VERSION__="\"${VERSION}\"" $(shell js-config --cflags) -I./src
-LDFLAGS    = $(shell js-config --libs) -llulzjs
+LDFLAGS    = $(shell js-config --libs | sed 's/-dynamic.*/-lm/') -llulzjs
 
 ifdef DEBUG
 CFLAGS += -g -Wall
@@ -26,7 +26,7 @@ lib: $(LIB)
 
 $(LIB) : $(LIB:.o=.cpp)
 	${CXX} ${LIB_CFLAGS} -fPIC -c $*.cpp -o $*.lo
-	${CXX} ${LIB_LDFLAGS} -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
+	${CXX} ${LIB_LDFLAGS} -dynamiclib -shared -Wl,-soname,`basename $*`.so -o $*.o $*.lo -lc
 
 lib_install: lib
 	mkdir -p ${LJS_LIBDIR}/ncurses

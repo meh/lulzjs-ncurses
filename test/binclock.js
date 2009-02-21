@@ -114,17 +114,14 @@ screen.createContainer = function ()
 }
 
 screen.onResize = function () {
-    if (this.Size.Width < 40 || this.Size.Height < 23) {
-        this.erase();
-        this.printString("LOL FAG", {fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
+    if (this.Size.Width < 50 || this.Size.Height < 23) {
         this.show = false;
     }
     else {
-        this.erase();
-        showClock();
         this.show = true;
+        this.erase();
+        this.showClock();
     }
-    this.refresh();
 };
 
 screen.printString("Press C-c to close the program", {fg: ncurses.Colors.Red, at: ncurses.Attributes.Underline});
@@ -157,7 +154,12 @@ while (true) {
     };
 
     if (screen.show) {
+        screen.printString(screen.show, {x: 2, y: 2});
         screen.showClock();
+    }
+    else {
+        screen.erase();
+        screen.printString("LOL FAG", {x: 2, y: 2, fg: ncurses.Colors.Red, at: ncurses.Attributes.Standout});
     }
 
     sleep(1);
